@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ RangeSlider allows a range selection from X axis.
+  ~ Copyright (C) <2012>  <itudoben at gmail dot com>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<ivysettings>
+
+  <properties file="${ivy.settings.dir}/ivysettings.properties"/>
+
+  <caches>
+
+    <cache
+        name="mycache"
+        basedir="${user.home}/.ivycache"
+        artifactPattern="[organisation]/[artifact]/[revision]/[artifact]-[revision].[ext]"
+        lockStrategy="no-lock"
+        />
+
+  </caches>
+
+  <resolvers>
+    <!--<filesystem name="myfs">-->
+    <!--&lt;!&ndash;<ivy pattern="${repository.dir}/[module]/ivy-[revision].xml"/>&ndash;&gt;-->
+    <!--<artifact pattern="${repository.dir}/[artifact]-[revision].[ext]"/>-->
+    <!--</filesystem>-->
+
+    <!--
+
+    m2compatible="true"
+    helps convert org with dots into a URL '/' as needed by maven repos
+
+    -->
+
+    <url name="mvnrepos" cache="mycache" m2compatible="true">
+      <artifact
+          pattern="http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact]-[revision].[ext]"/>
+    </url>
+
+    <url name="centralrepos" cache="mycache" m2compatible="true">
+      <artifact
+          pattern="http://search.maven.org/remotecontent?filepath=[organisation]/[artifact]/[revision]/[artifact]-[revision].[ext]"/>
+    </url>
+
+    <url name="myurl" cache="mycache" m2compatible="true">
+      <artifact
+          pattern="http://johnny.hujol.free.fr/javarepository/[artifact]-[revision].[ext]"/>
+    </url>
+
+  </resolvers>
+
+  <modules>
+    <module organisation="jgoodies" name="*" resolver="myurl"/>
+    <module organisation="*" name="*" resolver="mvnrepos"/>
+    <module organisation="*" name="*" resolver="centralrepos"/>
+  </modules>
+
+</ivysettings>

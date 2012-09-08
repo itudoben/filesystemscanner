@@ -1,0 +1,129 @@
+import groovy.xml.NamespaceBuilder
+
+import java.text.SimpleDateFormat
+
+apply plugin: 'java'
+
+defaultTasks 'clean', 'compileTest'
+
+def df = new SimpleDateFormat('yyyy.MM.dd.HHmmss')
+df.setTimeZone(TimeZone.getTimeZone("GMT"));
+version = df.format(new Date())
+
+configurations {
+  compile {
+    description = 'compile classpath'
+    transitive = true
+  }
+
+  runtime {
+    extendsFrom compile
+  }
+}
+
+sourceSets {
+  main {
+    java {
+      srcDir 'src/main'
+//      include "com/jh/fsduplicate/*.java"
+    }
+    resources {
+      srcDir 'src/main/resources'
+    }
+  }
+}
+
+libDir = 'libs'
+
+dependencies {
+  compile fileTree(dir: libDir, include: ['*.jar', '*.zip'])
+}
+
+sourceCompatibility = 6
+targetCompatibility = 6
+
+jar {
+  archiveName = 'atjh-' + version + '.jar'
+}
+
+task copyLibs(type: Copy, dependsOn: 'clean') {
+  from(libDir) {
+    include '*.jar'
+  }
+  from(libDir) {
+    include '*.zip'
+  }
+  into 'build/libs'
+}
+
+task(run, dependsOn: "jar", type: JavaExec) {
+  doFirst {
+    main = 'com.jh.fsduplicate.ui.Main'
+    systemProperties = ['sswing.defaultlaf': 'com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel',
+        'com.apple.mrj.application.apple.menu.about.name': 'FsDuplicate']
+    maxHeapSize = '256M'
+    classpath = sourceSets.main.runtimeClasspath
+
+    //    println classpath.asPath
+    //    String jarPath = relativePath(new File(libsDir, jar.archiveName))
+  }
+}
+
+/*
+
+ Using Ivy for library dependencies
+
+**/
+
+ivyInstallVersion = '2.3.0-rc1'
+
+antUserLocal = System.getProperty('user.home') + '/.ant'
+antUserLocalLib = antUserLocal + '/lib'
+localIvyJarFile = antUserLocalLib + '/ivy' + ivyInstallVersion + '.jar'
+
+task downloadIvy << {
+
+  ant {
+    condition(property: 'online') {
+      isreachable(url: 'http://search.maven.org', timeout: '10')
+    }
+
+    println 'offline prop: ' + ant.properties['online']
+
+    mkdir(dir: antUserLocalLib)
+
+    // download Ivy from web site and install in user home ant lib directory.
+    get(
+        src: 'http://repo2.maven.org/maven2/org/apache/ivy/ivy/' + ivyInstallVersion + '/ivy-' + ivyInstallVersion + '.jar',
+        dest: localIvyJarFile,
+        usetimestamp: 'true'
+    )
+  }
+}
+
+//    try to load ivy here from ivy home, in case the user has not already dropped
+//    it into ant's lib dir (note that the latter copy will always take precedence).
+//    We will not fail as long as local lib dir exists (it may be empty) and
+//    ivy is in at least one of ant's lib dir or the local lib dir.
+task getLibs(/*dependsOn: 'downloadIvy'*/) << {
+
+  ivyLibPath = fileTree(dir: antUserLocalLib, include: '*.jar')
+
+//  println '*** ivyLibPath: ' + ivyLibPath.asPath
+//
+//  ivyLibPath.each { println it }
+
+  // Load the task definition in ANT.
+  ant.taskdef(
+      resource: 'org/apache/ivy/ant/antlib.xml',
+      uri: 'antlib:org.apache.ivy.ant',
+      classpath: ivyLibPath.asPath
+  )
+
+  // Properties used by Ivy for project.
+  ant.properties['ivy.lib.dir'] = libDir
+
+  // Call the ANT task ivy.
+  def ivy = NamespaceBuilder.newInstance(ant, 'antlib:org.apache.ivy.ant')
+  ivy.retrieve()
+}

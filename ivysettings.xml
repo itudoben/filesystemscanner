@@ -61,9 +61,15 @@
           pattern="http://johnny.hujol.free.fr/javarepository/[artifact]-[revision].[ext]"/>
     </url>
 
+    <sftp name="myftp" host="ftpperso.free.fr" port="21">
+      <ivy pattern="javarepository/[module]/[revision]/ivy.xml"/>
+      <artifact pattern="javarepository/[artifact]-[revision].[ext]"/>
+    </sftp>
+
   </resolvers>
 
   <modules>
+    <module organisation="com.jh" name="*" resolver="myurl"/>
     <module organisation="jgoodies" name="*" resolver="myurl"/>
     <module organisation="*" name="*" resolver="mvnrepos"/>
     <module organisation="*" name="*" resolver="centralrepos"/>

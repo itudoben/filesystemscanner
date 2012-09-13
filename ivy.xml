@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
   ~ RangeSlider allows a range selection from X axis.
   ~ Copyright (C) <2012>  <itudoben at gmail dot com>
@@ -17,11 +16,13 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-
-
 <ivy-module version="2.0">
 
-  <info organisation="com.jh" module="activitytracker"/>
+  <info organisation="com.jh" module="fsduplicate" revision="1.0"/>
+
+  <publications>
+    <artifact name="fsduplicate" ext="jar" type="jar"/>
+  </publications>
 
   <dependencies>
 

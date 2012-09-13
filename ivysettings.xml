@@ -61,6 +61,11 @@
           pattern="http://johnny.hujol.free.fr/javarepository/[artifact]-[revision].[ext]"/>
     </url>
 
+    <vfs name="vfs-resolver">
+      <ivy pattern="ftp://user:pswd@ftpperso.free.fr/[module]/[revision]/ivy.xml"/>
+      <artifact pattern="ftp://user:pswd@ftpperso.free.fr/[artifact]-[revision].[ext]"/>
+    </vfs>
+
     <sftp name="myftp" host="ftpperso.free.fr" port="21">
       <ivy pattern="javarepository/[module]/[revision]/ivy.xml"/>
       <artifact pattern="javarepository/[artifact]-[revision].[ext]"/>

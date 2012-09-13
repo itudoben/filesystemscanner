@@ -139,7 +139,7 @@ dependencies {
 
 task publish(dependsOn: "jar"/*dependsOn: 'downloadIvy'*/) << {
 
-  ivyLibPath = fileTree(dir: antUserLocalLib, include: '*.jar')
+//  ivyLibPath = fileTree(dir: antUserLocalLib, include: '*.jar')
 
 //  println '*** ivyLibPath: ' + ivyLibPath.asPath
 //
@@ -151,7 +151,10 @@ task publish(dependsOn: "jar"/*dependsOn: 'downloadIvy'*/) << {
       uri: 'antlib:org.apache.ivy.ant'
   ) {
     classpath() {
-      fileSet(dir: antLib, includes: '**//jsch_0.1.44.jar')
+      fileSet(dir: '/Users/hujol/Downloads/commons-vfs-1.0', includes: '**/*.jar')
+      fileSet(dir: '/Users/hujol/Downloads/commons-logging-1.1.1', includes: '**/*.jar')
+      fileSet(dir: '/Users/hujol/Downloads/commons-httpclient-3.1', includes: '**/*.jar')
+      fileSet(dir: antLib, includes: '**/jsch_0.1.44.jar')
       fileSet(dir: antUserLocalLib, includes: '**/*.jar')
     }
   }
@@ -166,7 +169,7 @@ task publish(dependsOn: "jar"/*dependsOn: 'downloadIvy'*/) << {
 
   ivy.retrieve()
   ivy.publish(
-      resolver: "myftp", revision: '1.0', pubrevision: '1.0',
+      resolver: "vfs-resolver", revision: '1.0', pubrevision: '1.0',
       artifactspattern: 'build/libs/[module]-[revision].[ext]'
   ) /*{
     artifacts {

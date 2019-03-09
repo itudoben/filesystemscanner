@@ -1,8 +1,9 @@
-import com.google.common.hash.Hashing
-import com.google.common.io.Files
 import java.io.File
 import java.nio.charset.Charset
 import java.text.DecimalFormat
+
+import com.google.common.hash.Hashing
+import com.google.common.io.Files
 
 /*
 Compile with scalac then

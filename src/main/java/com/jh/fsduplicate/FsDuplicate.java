@@ -1,4 +1,4 @@
-package java.com.jh.fsduplicate;
+package com.jh.fsduplicate;
 
 import java.io.File;
 import java.io.FileInputStream;

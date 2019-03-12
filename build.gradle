@@ -9,7 +9,12 @@
 plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
+    id 'java'
 }
+
+sourceCompatibility = '1.11'
+targetCompatibility = '1.11'
+version = '1.2.1'
 
 repositories {
     // Use jcenter for resolving your dependencies.
@@ -27,4 +32,3 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
-

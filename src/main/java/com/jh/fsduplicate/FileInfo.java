@@ -1,4 +1,4 @@
-package com.jh.fsduplicate;
+package java.com.jh.fsduplicate;
 
 import java.sql.Timestamp;
 

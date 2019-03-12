@@ -1,4 +1,4 @@
-package com.jh.fsduplicate.ui;
+package java.com.jh.fsduplicate.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -7,6 +7,8 @@ import java.awt.EventQueue;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.com.jh.fsduplicate.FilesDAO;
+import java.com.jh.fsduplicate.FsDuplicate;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JButton;
@@ -21,9 +23,6 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
-
-import com.jh.fsduplicate.FilesDAO;
-import com.jh.fsduplicate.FsDuplicate;
 
 /**
  * @author <font size=-1 color="#a3a3a3">Johnny Hujol</font>

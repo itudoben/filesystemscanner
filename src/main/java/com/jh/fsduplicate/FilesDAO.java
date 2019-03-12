@@ -1,4 +1,4 @@
-package com.jh.fsduplicate;
+package java.com.jh.fsduplicate;
 
 import java.io.File;
 import java.io.IOException;

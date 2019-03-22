@@ -1,7 +1,6 @@
 package org.jh.filesystemscanner;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import java.io.File;
@@ -19,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <font size=-1 color="#a3a3a3">Johnny Hujol</font>
@@ -31,10 +32,12 @@ public final class FilesDAO {
 //    private static final String CONNECTION_URL = "jdbc:derby:" + DB_NAME + ";create=true";
     private static final String TABLE_NAME = "file";
 
+    private static Logger LOG = LoggerFactory.getLogger(FilesDAO.class.getName());
+
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public FilesDAO() throws Exception {
-        setDBSystemDir();
+//        setDBSystemDir();
         loadDatabaseDriver(DRIVER);
         start();
     }
@@ -50,10 +53,10 @@ public final class FilesDAO {
             if("42S02".equals(theError)) { // Table does not exist
                 return false;
             } else if("42X14".equals(theError) || "42821".equals(theError)) {
-                System.out.println("checkTable: Incorrect table definition. Drop table activity and rerun this program");
+                LOG.error("checkTable: Incorrect table definition. Drop table activity and rerun this program");
                 throw sqle;
             } else {
-                System.out.println("checkTable: Unhandled SQLException " + theError);
+                LOG.error("checkTable: Unhandled SQLException " + theError);
                 throw sqle;
             }
         }
@@ -61,7 +64,11 @@ public final class FilesDAO {
     }
 
     private static Connection getConnection() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:h2:~/.fsduplicate/db", "sa", "");
+        final File dbDirFile = new File(System.getProperty("user.home"), ".fsduplicate");
+
+        Connection connection = DriverManager.getConnection("jdbc:h2:" + dbDirFile.getAbsolutePath() + File.separator + "db", "sa", "");
+        LOG.info("Getting a connection from DB located in {}", dbDirFile.toString());
+
 //        connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
         return connection;
     }
@@ -89,22 +96,21 @@ public final class FilesDAO {
         Class.forName(driverName);
     }
 
-    private void setDBSystemDir() {
-        // Configure our Derby database
-        final File dbDirFile = new File(System.getProperty("user.home"), ".fsduplicate");
-        if(!dbDirFile.exists()) {
-            Preconditions.checkArgument(dbDirFile.mkdir(), "Cannot create directory '" + dbDirFile.getAbsolutePath() + "'.");
-        }
-
-        // Set the db system directory.
-        System.setProperty("derby.system.home", dbDirFile.getAbsolutePath());
-        System.out.println(dbDirFile);
-    }
+//    private void setDBSystemDir() {
+//        // Configure our Derby database
+//        final File dbDirFile = new File(System.getProperty("user.home"), ".fsduplicate");
+//        if(!dbDirFile.exists()) {
+//            Preconditions.checkArgument(dbDirFile.mkdir(), "Cannot create directory '" + dbDirFile.getAbsolutePath() + "'.");
+//        }
+//
+//        // Set the db system directory.
+//        System.setProperty("derby.system.home", dbDirFile.getAbsolutePath());
+//    }
 
     private void start() throws SQLException, IOException {
         final Connection conn = getConnection();
         if(!checkIfTableExists(conn, TABLE_NAME)) {
-            System.out.println(" . . . . creating table " + TABLE_NAME);
+            LOG.info(" . . . . creating table " + TABLE_NAME);
             final String fileDdl = Resources.toString(Resources.getResource("file_ddl.sql"), Charset.forName("UTF-8"));
             Statement s = conn.createStatement();
             try {
@@ -136,7 +142,7 @@ public final class FilesDAO {
                 try {
                     statement.executeUpdate();
                 } catch(Exception e) {
-                    System.out.println(e);
+                    LOG.info("", e);
                     // Likely it's a duplicate.
                     // Ignore.
                 }
@@ -159,10 +165,10 @@ public final class FilesDAO {
                     gotSQLExc = true;
                 }
             }
-            if(!gotSQLExc) {
-                System.out.println("Database did not shut down normally");
+            if(gotSQLExc) {
+                LOG.info("Database shut down normally");
             } else {
-                System.out.println("Database shut down normally");
+                LOG.info("Database did not shut down normally");
             }
         }
     }

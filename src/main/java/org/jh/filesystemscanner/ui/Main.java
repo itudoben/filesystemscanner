@@ -22,7 +22,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import org.jh.filesystemscanner.FilesDAO;
-import org.jh.filesystemscanner.FsDuplicate;
 
 /**
  * @author <font size=-1 color="#a3a3a3">Johnny Hujol</font>
@@ -175,7 +174,7 @@ public final class Main extends JFrame implements ActionListener {
                     @Override
                     public void run() {
                         try {
-                            FsDuplicate.indexDirectory(dao, selectedFile);
+                            org.jh.filesystemscanner.Main.indexDirectory(dao, selectedFile);
                         } catch(Exception e) {
                             e.printStackTrace();
                         } finally {

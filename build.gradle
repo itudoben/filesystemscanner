@@ -14,7 +14,7 @@ plugins {
 
 sourceCompatibility = '1.11'
 targetCompatibility = '1.11'
-version = '1.2.1'
+version = '0.0.2'
 
 repositories {
     mavenLocal()
@@ -30,9 +30,23 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.apache.derby/derby
     compile 'com.h2database:h2:1.4.199'
-    
+
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'
+
+    compile 'org.apache.logging.log4j:log4j-api:2.11.2'
+    compile 'org.apache.logging.log4j:log4j-core:2.11.2'
+
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.11.2'
+
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.9.0'
+
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
 
-mainClassName = 'com.jh.fsduplicate.ui.Main'
+mainClassName = 'org.jh.filesystemscanner.Main'

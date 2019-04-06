@@ -1,7 +1,6 @@
-package org.jh.filesystemscanner;
+package org.jh.filesystemscanner.api;
 
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.hash.HashFunction;
@@ -18,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -27,9 +27,10 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import org.jh.filesystemscanner.core.FileInfo;
+import org.jh.filesystemscanner.core.FilesDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,7 @@ public final class Main {
 
         final long currentTime65 = System.currentTimeMillis();
 
-        File dir = new File("/Users/hujol/Projects/fsduplicate/fsduplicate_project/filesystemscanner/src");
+        File dir = new File("/Users/hujol/Pictures/JO");
         //        File dir = new File("/Users/hujol/Pictures/Fan Pier/");
         //        File dir = new File("/Users/hujol/Pictures/Neto-B-Party");
 
@@ -62,27 +63,31 @@ public final class Main {
         FilesDAO dao = new FilesDAO();
         //        if(true) return;
 
-        final long currentTime75 = System.currentTimeMillis();
-        indexDirectory(dao, dir);
-        final long delta75 = System.currentTimeMillis() - currentTime75;
-        LOG.info("**** Executed indexDirectory in " + new DecimalFormat("0.0000").format(delta75 / 1000f) + "s");
+        try {
+            final long currentTime69 = System.currentTimeMillis();
+            indexDirectory(dao, dir);
+            final long delta69 = System.currentTimeMillis() - currentTime69;
+            LOG.info("**** Executed  in " + new DecimalFormat("0.0000").format(delta69 / 1000f) + "s");
 
+/*
+            final List<FileInfo> fileInfos = dao.getFileInfos();
+            LOG.info("fileInfos.size() = " + fileInfos.size());
 
-        final List<FileInfo> fileInfos = dao.getFileInfos();
-        LOG.info("fileInfos.size() = " + fileInfos.size());
-
-        final StringBuilder sb = new StringBuilder();
-        final ImmutableMap<Object, FileInfo> hashToFileInfo = Maps.uniqueIndex(fileInfos,
-                fileInfo -> null == fileInfo ? "NO MD5 HASH" : fileInfo.getHashDigest());
-        for(Map.Entry<Object, FileInfo> entry : hashToFileInfo.entrySet()) {
-            sb.delete(0, sb.length());
-            sb.append(entry.getKey());
-            sb.append(" -- ");
-            sb.append(entry.getValue());
-            LOG.info(sb.toString());
+            final StringBuilder sb = new StringBuilder();
+            final ImmutableMap<Object, FileInfo> hashToFileInfo = Maps.uniqueIndex(fileInfos,
+                    fileInfo -> null == fileInfo ? "NO MD5 HASH" : fileInfo.getHashDigest());
+            for(Map.Entry<Object, FileInfo> entry : hashToFileInfo.entrySet()) {
+                sb.delete(0, sb.length());
+                sb.append(entry.getKey());
+                sb.append(" -- ");
+                sb.append(entry.getValue());
+                LOG.info(sb.toString());
+            }
+*/
+        } finally {
+            dao.close();
         }
 
-        dao.close();
         final long delta65 = System.currentTimeMillis() - currentTime65;
         LOG.info("**** Executed main in " + new DecimalFormat("0.0000").format(delta65 / 1000f) + "s");
         System.exit(0);
@@ -95,13 +100,12 @@ public final class Main {
 
         // Start the producer.
         final CompletionService completionService = new ExecutorCompletionService(Executors.newFixedThreadPool(1));
-        final Callable runnable = () -> {
-            visitDirectory(dao, directory, queue, nbFiles);
-
-            return null;
-        };
+        final Callable<Map<String, File>> runnable = () -> scanFiles(directory, Maps.newHashMap());
+        final long currentTime105 = System.currentTimeMillis();
         completionService.submit(runnable);
 
+/*
+        // Processing files put in the queue as they come along.
         while(true) {
             Object[] objects = null;
             try {
@@ -130,35 +134,55 @@ public final class Main {
                 });
             }
         }
+*/
 
+        // Wait that the scan finishes.
         try {
-            completionService.take().get();
+            Map<String, File> pathToFile = (Map<String, File>) completionService.take().get();
+
+            LOG.info("Scanned {} files from directory {}", pathToFile.size(), directory.getAbsolutePath());
+            // Check that all files in the queue have been processed.
+            while(0 != nbFiles.get()) {
+                Thread.currentThread().wait(250);
+            }
         } catch(InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        final long delta105 = System.currentTimeMillis() - currentTime105;
+        LOG.info("**** Executed scanFiles in " + new DecimalFormat("0.0000").format(delta105 / 1000f) + "s");
+
 
         LOG.info("Done indexing directory " + directory.getAbsolutePath());
+    }
+
+    private static Map<String, File> scanFiles(File directory, Map<String, File> filesToCheck) {
+        LOG.debug("Visiting directory {}", directory);
+        final File[] files = directory.listFiles();
+        if(null == files) {
+            return Collections.emptyMap();
+        }
+
+        // Visit in depth-first the file system.
+        // Record the files to be treated.
+//        while(true) {
+//            Collection<File> dirsVisited = new ArrayList<>();
+        for(File file : files) {
+            if(file.isDirectory() && file.canRead()) {
+                scanFiles(file, filesToCheck);
+            } else {
+                filesToCheck.put(file.getAbsolutePath(), file);
+            }
+//            }
+        }
+
+        return filesToCheck;
     }
 
     private static void visitDirectory(FilesDAO dao, File directory, BlockingQueue<Object[]> queue, AtomicInteger nbFiles)
             throws SQLException {
         LOG.info("visiting " + directory.getAbsolutePath());
 
-        final File[] files = directory.listFiles();
-        if(null == files) {
-            return;
-        }
-
-        // Visit in depth-first the file system.
-        // Record the files to be treated.
-        final Map<String, File> filesToCheck = Maps.newHashMap();
-        for(File file : files) {
-            if(file.isDirectory() && file.canRead()) {
-                visitDirectory(dao, file, queue, nbFiles);
-            } else {
-                filesToCheck.put(file.getAbsolutePath(), file);
-            }
-        }
+        final Map<String, File> filesToCheck = scanFiles(directory, Maps.newHashMap());
 
         // All paths that need to be checked if they're already treated.
         final List<String> filePaths = Lists.newArrayList(filesToCheck.keySet());

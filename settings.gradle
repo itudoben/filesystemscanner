@@ -8,3 +8,6 @@
  */
 
 rootProject.name = 'FileSystemScanner'
+include 'core'
+include 'api'
+

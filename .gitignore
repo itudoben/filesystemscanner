@@ -5,3 +5,6 @@
 build
 target
 .idea
+*.iml
+*.ipr
+*.iws

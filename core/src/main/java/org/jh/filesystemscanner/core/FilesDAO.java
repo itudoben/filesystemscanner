@@ -1,4 +1,4 @@
-package org.jh.filesystemscanner;
+package org.jh.filesystemscanner.core;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;

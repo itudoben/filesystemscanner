@@ -6,21 +6,10 @@
  * User Manual available at https://docs.gradle.org/5.2.1/userguide/java_library_plugin.html
  */
 
-plugins {
-    // Apply the java-library plugin to add support for Java Library
-    id 'groovy'
-    id 'idea'
-}
-
-sourceCompatibility = '1.11'
-targetCompatibility = '1.11'
-version = '0.0.2'
-
 repositories {
     mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4'
 }

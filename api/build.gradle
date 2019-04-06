@@ -1,0 +1,29 @@
+import org.jh.filesystemscanner.BasePlugin
+import org.jh.filesystemscanner.BaseTask
+
+plugins {
+    id 'java'
+    id 'application'
+}
+
+version '0.0.2'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+
+    implementation project(':core')
+}
+
+application {
+    mainClassName = 'org.jh.filesystemscanner.api.Main'
+}
+
+tasks.create('titi', BaseTask) {
+    println 'coucou'
+}

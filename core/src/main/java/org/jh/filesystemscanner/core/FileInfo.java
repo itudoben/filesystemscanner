@@ -1,4 +1,4 @@
-package org.jh.filesystemscanner;
+package org.jh.filesystemscanner.core;
 
 import java.sql.Timestamp;
 
@@ -18,7 +18,7 @@ public final class FileInfo {
 
     private final Timestamp timeComputed;
 
-    FileInfo(String hashDigest, String path, Timestamp timeComputed, long size) {
+    public FileInfo(String hashDigest, String path, Timestamp timeComputed, long size) {
         this.hashDigest = hashDigest;
         this.path = path;
         String[] elts = path.split("\\.");
@@ -27,7 +27,7 @@ public final class FileInfo {
         this.size = size;
     }
 
-    public String getHashDigest() {
+    String getHashDigest() {
         return hashDigest;
     }
 
@@ -39,11 +39,11 @@ public final class FileInfo {
         return timeComputed;
     }
 
-    public String getExtension() {
+    String getExtension() {
         return extension;
     }
 
-    public long getSize() {
+    long getSize() {
         return size;
     }
 
